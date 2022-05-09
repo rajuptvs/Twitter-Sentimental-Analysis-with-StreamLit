@@ -13,7 +13,7 @@ import pickle
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 from tqdm import tqdm
-import joblib
+#import joblib
 import nltk
 nltk.download('stopwords')
 
@@ -31,7 +31,7 @@ model = open("LRmodel.pkl","rb")
 classifier = pickle.load(model)
 #m_jlib = joblib.load('model_jlib')
 
-MAP={0:'Negatve', 1:'Neutral', 2:'Positive'}
+MAP={0:'Negative', 1:'Neutral', 2:'Positive'}
 
 target='Sentiment'
 st.markdown('Sentiment Analysis')
@@ -112,7 +112,8 @@ def run():
         #Sentiment distribution
         figs, ax = plt.subplots()
         st.title('Distribution of sentiment')
-        plt.pie(df[target].value_counts(), labels=['Neutral','Positive','Negative'], counterclock=False, shadow=True, explode=[0,0,0.08], autopct='%1.1f%%', radius=1, startangle=0)
+        plt.pie(df[target].value_counts(), labels=['Negative','Neutral','Positive'], counterclock=False, shadow=True, explode=[0,0,0.08], autopct='%1.1f%%', radius=1, startangle=0)
+        
         plt.show()
         st.pyplot(figs)
 
