@@ -33,7 +33,7 @@ classifier = pickle.load(model)
 
 MAP={0:'Negatve', 1:'Neutral', 2:'Positive'}
 
-
+target='Sentiment'
 st.markdown('Sentiment Analysis')
 
 porter=PorterStemmer()
@@ -57,10 +57,14 @@ def tokenizer_porter(text):
 tfidf=TfidfVectorizer(strip_accents=None,lowercase=False,preprocessor=None,tokenizer=tokenizer_porter,use_idf=True,norm='l2',smooth_idf=True,max_features=50)
 
 def run():
+    #Input Fields
     with st.form(key='Enter name'):
         search_words = st.text_input('Enter a particular topic you want to retrieve tweets for ...')
-        number_of_tweets = st.number_input('Total Tweets Required (Maximum 50 tweets)', 0,1000,10)
+        number_of_tweets = st.number_input('Total Tweets Required (Maximum 50 tweets)', 0,50,10)
         submit_button = st.form_submit_button(label='Submit')
+
+
+    #Getting Tweets using twitter API
     if submit_button:
         tweets =tw.Cursor(api.search_tweets,q=search_words,lang='en').items(number_of_tweets)
         print(tweets)
@@ -68,23 +72,35 @@ def run():
         tweet_list = [i.text for i in tweets]
         col_name=['Latest ' +str(number_of_tweets)+' Tweets']
         df = pd.DataFrame(list(zip(tweet_list)),columns =col_name)  
-
+        st.subheader("Below are the recent tweets related to  "+ search_words)
         st.write(df)
-        st.write(col_name)
+
+        #Pre Processing of the tweets
         for i in tqdm(range(df.shape[0])):
 
-            df.loc[i,'processtext'] = preprocessor(df['Latest ' +str(number_of_tweets)+' Tweets'][i])
+            df.loc[i,'processed_text'] = preprocessor(df['Latest ' +str(number_of_tweets)+' Tweets'][i])
+
+        st.subheader("Below are the processed tweets related to "+ search_words)
         st.write(df)
-        x=tfidf.fit_transform(df.processtext)
-        st.write(x.shape)
+
+        #Tokenization of the tweets for getting the features
+        x=tfidf.fit_transform(df.processed_text)
+
+        #Using the saved model to make the predictions on the tweets
         prediction=classifier.predict(x)
+
         Y = pd.Series(prediction).map(MAP)
+
+        #Converting timeseries to DataFrame
         Y=Y.to_frame()
-        st.write(Y)
-        st.write(type(Y))
         df['Sentiment']=Y
+
+        #Final DataFrame
+        st.subheader("Sentimental Analysis of tweets related to "+ search_words)
         st.write(df)
-        text = " ".join(i for i in df['processtext'])
+
+        #Image Cloud Generation
+        text = " ".join(i for i in df['processed_text'])
         stopwords = set(STOPWORDS)
         wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
         fig, ax = plt.subplots()
@@ -92,6 +108,13 @@ def run():
         plt.axis("off")
         plt.show()
         st.pyplot(fig)
+
+        #Sentiment distribution
+        figs, ax = plt.subplots()
+        st.title('Distribution of sentiment')
+        plt.pie(df[target].value_counts(), labels=['Neutral','Positive','Negative'], counterclock=False, shadow=True, explode=[0,0,0.08], autopct='%1.1f%%', radius=1, startangle=0)
+        plt.show()
+        st.pyplot(figs)
 
         #st.write(filepath)
 
