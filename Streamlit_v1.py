@@ -100,6 +100,7 @@ def run():
         st.write(df)
 
         #Image Cloud Generation
+        st.subheader("Most occured words in tweets related to "+ search_words)
         text = " ".join(i for i in df['processed_text'])
         stopwords = set(STOPWORDS)
         wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
@@ -109,13 +110,6 @@ def run():
         plt.show()
         st.pyplot(fig)
 
-        #Sentiment distribution
-        figs, ax = plt.subplots()
-        st.title('Distribution of sentiment')
-        plt.pie(df[target].value_counts(), labels=['Negative','Neutral','Positive'], counterclock=False, shadow=True, explode=[0,0,0.08], autopct='%1.1f%%', radius=1, startangle=0)
-        
-        plt.show()
-        st.pyplot(figs)
 
         #st.write(filepath)
 
