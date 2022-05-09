@@ -1,6 +1,5 @@
 tweepy==4.8.0
 streamlit==1.9.0
-pandas==1.4.2
 tensorflow==2.8.0
 wordcloud==1.8.1
 matplotlib==3.5.1
